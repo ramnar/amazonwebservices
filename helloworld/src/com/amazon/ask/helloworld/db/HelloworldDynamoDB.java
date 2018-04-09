@@ -1,6 +1,5 @@
 package com.amazon.ask.helloworld.db;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /*
@@ -21,8 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -31,16 +28,9 @@ import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
-import com.amazonaws.services.dynamodbv2.model.ScalarAttributeType;
-import com.amazonaws.services.dynamodbv2.util.TableUtils;
 
 /**
  * This sample demonstrates how to perform a few simple operations with the
@@ -74,44 +64,36 @@ public class HelloworldDynamoDB {
 		try {
 			init();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Failed to Initialize table");
+			System.err.println(e.getMessage());
 		}
 	}
 
 	/**
-	 * The only information needed to create a client are security credentials
-	 * consisting of the AWS Access Key ID and Secret Access Key. All other
-	 * configuration, such as the service endpoints, are performed automatically.
-	 * Client parameters, such as proxies, can be specified in an optional
-	 * ClientConfiguration object when constructing a client.
-	 *
-	 * @see com.amazonaws.auth.BasicAWSCredentials
-	 * @see com.amazonaws.auth.ProfilesConfigFile
-	 * @see com.amazonaws.ClientConfiguration
+	 * 
+	 * @throws Exception
 	 */
 	private static void init() throws Exception {
 
 		dynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
 
-		// Create a table with a primary hash key named 'name', which holds a string
-		CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
-				.withKeySchema(new KeySchemaElement().withAttributeName("user_id").withKeyType(KeyType.HASH),
-						new KeySchemaElement().withAttributeName("s_no").withKeyType(KeyType.RANGE))
-				.withAttributeDefinitions(
-						new AttributeDefinition().withAttributeName("user_id").withAttributeType(ScalarAttributeType.S),
-						new AttributeDefinition().withAttributeName("s_no").withAttributeType(ScalarAttributeType.S))
-				.withProvisionedThroughput(
-						new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
-
-		// Create table if it does not exist yet
-		TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);
-		// wait for the table to move into ACTIVE state
-		TableUtils.waitUntilActive(dynamoDB, tableName);
-		addItem("ram", "Iam very happy today");
+//		// Create a table with a primary hash key named 'name', which holds a string
+//		CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
+//				.withKeySchema(new KeySchemaElement().withAttributeName("user_id").withKeyType(KeyType.HASH),
+//						new KeySchemaElement().withAttributeName("s_no").withKeyType(KeyType.RANGE))
+//				.withAttributeDefinitions(
+//						new AttributeDefinition().withAttributeName("user_id").withAttributeType(ScalarAttributeType.S),
+//						new AttributeDefinition().withAttributeName("s_no").withAttributeType(ScalarAttributeType.S))
+//				.withProvisionedThroughput(
+//						new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
+//
+//		// Create table if it does not exist yet
+//		TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);
+//		// wait for the table to move into ACTIVE state
+//		TableUtils.waitUntilActive(dynamoDB, tableName);
 	}
 
-	public static void addItem(String userId, String happyEvent) throws ParseException {
+	public void addItem(String userId, String happyEvent){
 		Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
 		item.put("s_no", new AttributeValue(UUID.randomUUID().toString()));
 		item.put("user_id", new AttributeValue(userId));
@@ -124,7 +106,7 @@ public class HelloworldDynamoDB {
 		System.out.println("Result: " + putItemResult);
 	}
 
-	public static ItemCollection<QueryOutcome> getItems(String userId, String inputDate) {
+	public ItemCollection<QueryOutcome> getItems(String userId, String inputDate) {
 		ItemCollection<QueryOutcome> items = null;
 		try {
 			DynamoDB dynamoDB1 = new DynamoDB(dynamoDB);
