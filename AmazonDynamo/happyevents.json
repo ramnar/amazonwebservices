@@ -1,0 +1,20 @@
+[
+    {
+        "s_no": 1,
+        "user_id": "ram",
+        "happy_event": "Saw a nice movie oopiri",
+        "insert_timestamp": "2018-05-10"
+    },
+     {
+        "s_no": 2,
+        "user_id": "ram",
+        "happy_event": "Had a very light dinner",
+        "insert_timestamp": "2018-05-10"
+    },
+     {
+        "s_no": 3,
+        "user_id": "ram",
+        "happy_event": "Cleaned the house",
+        "insert_timestamp": "2018-05-10"
+    }
+]
