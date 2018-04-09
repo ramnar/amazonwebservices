@@ -18,7 +18,6 @@ import com.amazon.ask.SkillStreamHandler;
 import com.amazon.ask.Skills;
 import com.amazon.ask.helloworld.handlers.AddMomentIntentHandler;
 import com.amazon.ask.helloworld.handlers.CancelandStopIntentHandler;
-import com.amazon.ask.helloworld.handlers.HelloWorldIntentHandler;
 import com.amazon.ask.helloworld.handlers.HelpIntentHandler;
 import com.amazon.ask.helloworld.handlers.LaunchRequestHandler;
 import com.amazon.ask.helloworld.handlers.ReadMomentIntentHandler;
@@ -30,7 +29,6 @@ public class HelloWorldStreamHandler extends SkillStreamHandler {
         return Skills.standard()
                 .addRequestHandlers(
                         new CancelandStopIntentHandler(),
-                        new HelloWorldIntentHandler(),
                         new ReadMomentIntentHandler(),
                         new AddMomentIntentHandler(),
                         new HelpIntentHandler(),
