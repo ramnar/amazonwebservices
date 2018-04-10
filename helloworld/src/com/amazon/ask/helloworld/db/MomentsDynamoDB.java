@@ -36,7 +36,7 @@ import com.amazonaws.services.dynamodbv2.model.PutItemResult;
  * This sample demonstrates how to perform a few simple operations with the
  * Amazon DynamoDB service.
  */
-public class HelloworldDynamoDB {
+public class MomentsDynamoDB {
 
 	/*
 	 * Before running the code: Fill in your AWS access credentials in the provided
@@ -49,18 +49,18 @@ public class HelloworldDynamoDB {
 	 * credentials file in your source directory.
 	 */
 
-	static AmazonDynamoDB dynamoDB;
+	static AmazonDynamoDB amazonDynamoDB;
 	static final String tableName = "happy-events-table";
-	private static HelloworldDynamoDB instance = null;
+	private static MomentsDynamoDB instance = null;
 
-	public static HelloworldDynamoDB getInstance() {
+	public static MomentsDynamoDB getInstance() {
 		if (null == instance) {
-			instance = new HelloworldDynamoDB();
+			instance = new MomentsDynamoDB();
 		}
 		return instance;
 	}
 
-	private HelloworldDynamoDB() {
+	private MomentsDynamoDB() {
 		try {
 			init();
 		} catch (Exception e) {
@@ -75,22 +75,7 @@ public class HelloworldDynamoDB {
 	 */
 	private static void init() throws Exception {
 
-		dynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
-
-//		// Create a table with a primary hash key named 'name', which holds a string
-//		CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
-//				.withKeySchema(new KeySchemaElement().withAttributeName("user_id").withKeyType(KeyType.HASH),
-//						new KeySchemaElement().withAttributeName("s_no").withKeyType(KeyType.RANGE))
-//				.withAttributeDefinitions(
-//						new AttributeDefinition().withAttributeName("user_id").withAttributeType(ScalarAttributeType.S),
-//						new AttributeDefinition().withAttributeName("s_no").withAttributeType(ScalarAttributeType.S))
-//				.withProvisionedThroughput(
-//						new ProvisionedThroughput().withReadCapacityUnits(1L).withWriteCapacityUnits(1L));
-//
-//		// Create table if it does not exist yet
-//		TableUtils.createTableIfNotExists(dynamoDB, createTableRequest);
-//		// wait for the table to move into ACTIVE state
-//		TableUtils.waitUntilActive(dynamoDB, tableName);
+		amazonDynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
 	}
 
 	public void addItem(String userId, String happyEvent){
@@ -102,14 +87,14 @@ public class HelloworldDynamoDB {
 		item.put("insert_timestamp", new AttributeValue().withN("" + System.currentTimeMillis()));
 
 		PutItemRequest putItemRequest = new PutItemRequest(tableName, item);
-		PutItemResult putItemResult = dynamoDB.putItem(putItemRequest);
+		PutItemResult putItemResult = amazonDynamoDB.putItem(putItemRequest);
 		System.out.println("Result: " + putItemResult);
 	}
 
 	public ItemCollection<QueryOutcome> getItems(String userId, String inputDate) {
 		ItemCollection<QueryOutcome> items = null;
 		try {
-			DynamoDB dynamoDB1 = new DynamoDB(dynamoDB);
+			DynamoDB dynamoDB1 = new DynamoDB(amazonDynamoDB);
 			Table table = dynamoDB1.getTable(tableName);
 
 			HashMap<String, String> nameMap = new HashMap<String, String>();
@@ -127,6 +112,30 @@ public class HelloworldDynamoDB {
 					.withFilterExpression("#insert > :v_insert").withNameMap(nameMap).withValueMap(valueMap);
 
 			System.out.println("Happy events for user");
+			items = table.query(querySpec);
+
+		} catch (Exception e) {
+			System.err.println("Unable to query happy_events table");
+			System.err.println(e.getMessage());
+		}
+		return items;
+	}
+	
+	
+	public ItemCollection<QueryOutcome> getIAlltems(String userId) {
+		ItemCollection<QueryOutcome> items = null;
+		try {
+
+			HashMap<String, String> nameMap = new HashMap<String, String>();
+			nameMap.put("#userid", "user_id");
+
+			HashMap<String, Object> valueMap = new HashMap<String, Object>();
+			valueMap.put(":v_userid", userId);
+
+			QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid").withNameMap(nameMap).withValueMap(valueMap);
+
+			DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
+			Table table = dynamoDB.getTable(tableName);
 			items = table.query(querySpec);
 
 		} catch (Exception e) {

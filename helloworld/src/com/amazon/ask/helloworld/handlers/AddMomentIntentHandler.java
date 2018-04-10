@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
-import com.amazon.ask.helloworld.db.HelloworldDynamoDB;
+import com.amazon.ask.helloworld.db.MomentsDynamoDB;
 import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.model.Slot;
@@ -34,7 +34,7 @@ public class AddMomentIntentHandler implements RequestHandler {
 
 	@Override
 	public Optional<Response> handle(HandlerInput input) {
-		HelloworldDynamoDB db = HelloworldDynamoDB.getInstance();
+		MomentsDynamoDB db = MomentsDynamoDB.getInstance();
 		String userId = input.getRequestEnvelope().getSession().getUser().getUserId();
 
 		Map<String, Slot> slots = ((IntentRequest) input.getRequestEnvelope().getRequest()).getIntent().getSlots();

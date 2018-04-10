@@ -9,7 +9,7 @@
      or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for
      the specific language governing permissions and limitations under the License.
-*/
+ */
 
 package com.amazon.ask.helloworld.handlers;
 
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
 import com.amazon.ask.dispatcher.request.handler.RequestHandler;
-import com.amazon.ask.helloworld.db.HelloworldDynamoDB;
+import com.amazon.ask.helloworld.db.MomentsDynamoDB;
 import com.amazon.ask.model.Response;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
@@ -35,9 +35,9 @@ public class ReadMomentIntentHandler implements RequestHandler {
 
 	@Override
 	public Optional<Response> handle(HandlerInput input) {
-		HelloworldDynamoDB db = HelloworldDynamoDB.getInstance();
+		MomentsDynamoDB db = MomentsDynamoDB.getInstance();
 		String userId = input.getRequestEnvelope().getSession().getUser().getUserId();
-		ItemCollection<QueryOutcome> items = db.getItems(userId, "2018-04-07");
+		ItemCollection<QueryOutcome> items = db.getIAlltems(userId);
 
 		Iterator<Item> iterator = null;
 		Item item = null;
@@ -47,7 +47,6 @@ public class ReadMomentIntentHandler implements RequestHandler {
 			iterator = items.iterator();
 			while (iterator.hasNext()) {
 				item = iterator.next();
-				System.out.println(item.getString("user_id") + ": " + item.getString("happy_event"));
 				speechText += item.getString("happy_event") + ". ";
 
 			}
@@ -55,7 +54,7 @@ public class ReadMomentIntentHandler implements RequestHandler {
 			System.err.println("Unable to query happy_events table");
 			System.err.println(e.getMessage());
 		}
-		return input.getResponseBuilder().withSpeech(speechText).withSimpleCard("HelloWorld", speechText).build();
+		return input.getResponseBuilder().withSpeech(speechText).withSimpleCard("Happy Moments", speechText).build();
 	}
 
 }
