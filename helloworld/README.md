@@ -1,18 +1,24 @@
-# Alexa Skills Kit SDK Sample - Hello World
-A simple [AWS Lambda](http://aws.amazon.com/lambda) function that demonstrates how to write a Hello World skill for the Amazon Echo using the Alexa SDK.
+## Conversation 1
+User: alexa open three good things
 
-## Concepts
-This simple sample has no external dependencies or session management, and shows the most basic example of how to create a Lambda function for handling Alexa Skill requests.
+Alexa: Welcome to three good things! Tell one thing that went well for you today like by saying Today I played awesome cricket
+User: Today I had tasty food
 
-## Setup
-To run this example skill you need to do two things. The first is to deploy the example code in lambda, and the second is to configure the Alexa skill to use Lambda.
+Alexa: First one added successfully. Tell the second one. If you dont have any say stop
+User: Today I watched a movie
 
-### AWS Lambda Setup
-Refer to [Hosting a Custom Skill as an AWS Lambda Function](https://developer.amazon.com/docs/custom-skills/host-a-custom-skill-as-an-aws-lambda-function.html) reference for a walkthrough on creating a AWS Lambda function with the correct role for your skill. When creating the function, select the “Author from scratch” option, and select the Java 8 runtime.
+Alexa: Second one added successfully. Tell the third one. If you dont have any say stop
+User: Today I went for an outing
 
-To build the sample, open a terminal and go to the directory containing pom.xml, and run 'mvn assembly:assembly -DdescriptorId=jar-with-dependencies package'. This will generate a zip file named "helloworld-1.0-jar-with-dependencies.jar" in the target directory.
- 
-Once you've created your AWS Lambda function and configured “Alexa Skills Kit” as a trigger, upload the JAR file produced in the previous step and set the handler to the fully qualified class name of your handler function. Finally, copy the ARN for your AWS Lambda function because you’ll need it when configuring your skill in the Amazon Developer console.
+Alexa: Third one added successfully.Thankyou. Have a nice day
 
-### Alexa Skill Setup
-Please refer to [Developing Your First Skill](https://github.com/alexa/alexa-skills-kit-sdk-for-java/wiki/Developing-Your-First-Skill) for detailed instructions.
+## Conversation 2
+User: alexa ask three good things to add "I played cricket after long time"
+
+Alexa: Good thing added successfully.
+
+
+## Conversation 3
+User: alexa ask three good things to read/play/tell for (today/yesterday/one week/one month)
+
+Alexa: I woke up early. watched good movie. I met a college friend. I went to restaurant. I met my grand parents
