@@ -9,7 +9,7 @@
      or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS,
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for
      the specific language governing permissions and limitations under the License.
-*/
+ */
 
 package com.amazon.ask.helloworld.handlers;
 
@@ -24,19 +24,15 @@ import static com.amazon.ask.request.Predicates.requestType;
 
 public class LaunchRequestHandler implements RequestHandler {
 
-    @Override
-    public boolean canHandle(HandlerInput input) {
-        return input.matches(requestType(LaunchRequest.class));
-    }
+	@Override
+	public boolean canHandle(HandlerInput input) {
+		return input.matches(requestType(LaunchRequest.class));
+	}
 
-    @Override
-    public Optional<Response> handle(HandlerInput input) {
-        String speechText = "Welcome to Happy Moments! Tell one positive experience you had today";
-        return input.getResponseBuilder()
-                .withSpeech(speechText)
-                .withSimpleCard("Happy Moment", speechText)
-                .withReprompt(speechText)
-                .build();
-    }
+	@Override
+	public Optional<Response> handle(HandlerInput input) {
+		String speechText = "Welcome to three good things! Think of at least three things that went well for you today.Tell the first one.Your sentence should start with the word today like Today I watched a good movie";
+		return input.getResponseBuilder().withSpeech(speechText).withSimpleCard("Happy Moment", speechText).withReprompt(speechText).build();
+	}
 
 }

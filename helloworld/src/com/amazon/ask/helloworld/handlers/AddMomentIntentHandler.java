@@ -27,6 +27,8 @@ import com.amazon.ask.model.Slot;
 
 public class AddMomentIntentHandler implements RequestHandler {
 
+	private static final String COUNTER = "COUNTER";
+
 	@Override
 	public boolean canHandle(HandlerInput input) {
 		return input.matches(intentName("AddMomentIntent"));
@@ -36,11 +38,28 @@ public class AddMomentIntentHandler implements RequestHandler {
 	public Optional<Response> handle(HandlerInput input) {
 		MomentsDynamoDB db = MomentsDynamoDB.getInstance();
 		String userId = input.getRequestEnvelope().getSession().getUser().getUserId();
+		Map<String, Object> attributes = input.getRequestEnvelope().getSession().getAttributes();
+		Object counter = attributes.get(COUNTER);
+		Integer value = null;
+		if (counter == null) {
+			attributes.put(COUNTER, new Integer(1));
+		} else {
+			value = ((Integer) counter);
+			attributes.put(COUNTER, value + 1);
+		}
 
 		Map<String, Slot> slots = ((IntentRequest) input.getRequestEnvelope().getRequest()).getIntent().getSlots();
 		String message = slots.get("happymoment").getValue();
 		db.addItem(userId, message);
-		String speechText = "Happy Event added successfully";
+		String speechText = "";
+		if (value == null) {
+			speechText = "First one added successfully. Tell the second one.Your sentence should start with the word today";
+		} else if (value == 1) {
+			speechText = "Second one added successfully. Tell the third one.Your sentence should start with the word today";
+		} else if (value == 2) {
+			speechText = "Third one added successfully.Thankyou. Have a nice day";
+			attributes.remove(COUNTER);
+		}
 		return input.getResponseBuilder().withSpeech(speechText).withSimpleCard("HappyEvent", speechText).build();
 	}
 

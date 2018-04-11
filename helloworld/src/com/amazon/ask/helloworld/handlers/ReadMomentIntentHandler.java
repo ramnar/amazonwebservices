@@ -39,17 +39,20 @@ public class ReadMomentIntentHandler implements RequestHandler {
 		String userId = input.getRequestEnvelope().getSession().getUser().getUserId();
 		ItemCollection<QueryOutcome> items = db.getIAlltems(userId);
 
-		Iterator<Item> iterator = null;
-		Item item = null;
 		String speechText = "";
 		try {
+			Item item = null;
+			if (items != null && items.getAccumulatedItemCount() > 0) {
+				Iterator<Item> iterator = items.iterator();
+				while (iterator.hasNext()) {
+					item = iterator.next();
+					speechText += item.getString("happy_event") + ". ";
 
-			iterator = items.iterator();
-			while (iterator.hasNext()) {
-				item = iterator.next();
-				speechText += item.getString("happy_event") + ". ";
-
+				}
+			} else {
+				speechText = "Sorry! No happy moments are present";
 			}
+
 		} catch (Exception e) {
 			System.err.println("Unable to query happy_events table");
 			System.err.println(e.getMessage());

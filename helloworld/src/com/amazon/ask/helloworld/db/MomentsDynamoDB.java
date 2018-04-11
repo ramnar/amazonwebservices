@@ -91,7 +91,7 @@ public class MomentsDynamoDB {
 		System.out.println("Result: " + putItemResult);
 	}
 
-	public ItemCollection<QueryOutcome> getItems(String userId, String inputDate) {
+	public ItemCollection<QueryOutcome> getItems(String userId, long timestamp) {
 		ItemCollection<QueryOutcome> items = null;
 		try {
 			DynamoDB dynamoDB1 = new DynamoDB(amazonDynamoDB);
@@ -103,10 +103,7 @@ public class MomentsDynamoDB {
 
 			HashMap<String, Object> valueMap = new HashMap<String, Object>();
 			valueMap.put(":v_userid", userId);
-			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-			Date date = format.parse(inputDate);
-			valueMap.put(":v_insert", date.getTime());
+			valueMap.put(":v_insert", timestamp);
 
 			QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid")
 					.withFilterExpression("#insert > :v_insert").withNameMap(nameMap).withValueMap(valueMap);
