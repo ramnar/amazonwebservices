@@ -1,7 +1,5 @@
-package com.amazon.ask.helloworld.db;
+package com.ramnar.ask.db;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 /*
  * Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *

@@ -16,7 +16,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazon.ask.helloworld.db.MomentsDynamoDB;
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.slu.Intent;
 import com.amazon.speech.slu.Slot;
@@ -33,6 +32,7 @@ import com.amazon.speech.ui.SimpleCard;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
+import com.ramnar.ask.db.MomentsDynamoDB;
 
 /**
  * This sample shows how to create a simple speechlet for handling intent
