@@ -1,22 +1,14 @@
 package com.ramnar.ask.db;
 
-/*
- * Copyright 2012-2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+/**
+ * ramnar
  */
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -29,67 +21,63 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutItemResult;
+import com.ramnar.ask.core.MomentsSpeechlet;
 
 /**
- * This sample demonstrates how to perform a few simple operations with the
- * Amazon DynamoDB service.
+ * Class to do crud operations on a table in amazon dynamo db.
  */
 public class MomentsDynamoDB {
 
-	/*
-	 * Before running the code: Fill in your AWS access credentials in the provided
-	 * credentials file template, and be sure to move the file to the default
-	 * location (/home/tomato/.aws/credentials) where the sample code will load the
-	 * credentials from.
-	 * https://console.aws.amazon.com/iam/home?#security_credential
-	 *
-	 * WARNING: To avoid accidental leakage of your credentials, DO NOT keep the
-	 * credentials file in your source directory.
-	 */
+	private static final Logger log = LoggerFactory.getLogger(MomentsSpeechlet.class);
 
-	static AmazonDynamoDB amazonDynamoDB;
-	static final String tableName = "happy-events-table";
+	private static AmazonDynamoDB amazonDynamoDB;
+	private static final String tableName = "happy-events-table";
 	private static MomentsDynamoDB instance = null;
 
 	public static MomentsDynamoDB getInstance() {
+		log.info("Entering getInstance");
 		if (null == instance) {
+			amazonDynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
 			instance = new MomentsDynamoDB();
 		}
+		log.info("Exiting getInstance");
 		return instance;
 	}
 
 	private MomentsDynamoDB() {
-		try {
-			init();
-		} catch (Exception e) {
-			System.err.println("Failed to Initialize table");
-			System.err.println(e.getMessage());
+
+	}
+
+	public boolean addItem(String userId, String happyEvent) {
+		log.info("Entering addItem");
+
+		if (userId == null || userId.trim().length() == 0 || happyEvent == null || happyEvent.trim().length() == 0) {
+			log.info("user id or happy event are not valid. userId={} happyEvent={}", userId, happyEvent);
+			return false;
 		}
-	}
 
-	/**
-	 * 
-	 * @throws Exception
-	 */
-	private static void init() throws Exception {
-
-		amazonDynamoDB = AmazonDynamoDBClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
-	}
-
-	public void addItem(String userId, String happyEvent){
 		Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
 		item.put("s_no", new AttributeValue(UUID.randomUUID().toString()));
 		item.put("user_id", new AttributeValue(userId));
 		item.put("happy_event", new AttributeValue(happyEvent));
-
 		item.put("insert_timestamp", new AttributeValue().withN("" + System.currentTimeMillis()));
 
-		PutItemRequest putItemRequest = new PutItemRequest(tableName, item);
-		PutItemResult putItemResult = amazonDynamoDB.putItem(putItemRequest);
-		System.out.println("Result: " + putItemResult);
+		log.info("Values being insert into the table are s_no={}, userId={}, happy_event={},insert_timestamp={}", item.get("s_no"), item.get("user_id"), item.get("happy_event"), item.get("s_no"), item.get("insert_timestamp"));
+
+		try {
+			amazonDynamoDB.putItem(new PutItemRequest(tableName, item));
+			log.info("Record Inserted successfully");
+		} catch (Exception e) {
+			log.error("Exception in adding record {}", e.getMessage());
+			return false;
+		} finally {
+			log.info("Exiting addItem");
+		}
+		return true;
 	}
 
 	public ItemCollection<QueryOutcome> getItems(String userId, long timestamp) {
+		log.info("Entering getItems");
 		ItemCollection<QueryOutcome> items = null;
 		try {
 			DynamoDB dynamoDB1 = new DynamoDB(amazonDynamoDB);
@@ -97,45 +85,29 @@ public class MomentsDynamoDB {
 
 			HashMap<String, String> nameMap = new HashMap<String, String>();
 			nameMap.put("#userid", "user_id");
-			nameMap.put("#insert", "insert_timestamp");
-
-			HashMap<String, Object> valueMap = new HashMap<String, Object>();
-			valueMap.put(":v_userid", userId);
-			valueMap.put(":v_insert", timestamp);
-
-			QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid")
-					.withFilterExpression("#insert > :v_insert").withNameMap(nameMap).withValueMap(valueMap);
-
-			System.out.println("Happy events for user");
-			items = table.query(querySpec);
-
-		} catch (Exception e) {
-			System.err.println("Unable to query happy_events table");
-			System.err.println(e.getMessage());
-		}
-		return items;
-	}
-	
-	
-	public ItemCollection<QueryOutcome> getIAlltems(String userId) {
-		ItemCollection<QueryOutcome> items = null;
-		try {
-
-			HashMap<String, String> nameMap = new HashMap<String, String>();
-			nameMap.put("#userid", "user_id");
 
 			HashMap<String, Object> valueMap = new HashMap<String, Object>();
 			valueMap.put(":v_userid", userId);
 
-			QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid").withNameMap(nameMap).withValueMap(valueMap);
+			QuerySpec querySpec = null;
+			if (timestamp != -1) {
+				nameMap.put("#insert", "insert_timestamp");
+				valueMap.put(":v_insert", timestamp);
+				querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid").withFilterExpression("#insert > :v_insert").withNameMap(nameMap).withValueMap(valueMap);
+			} else {
+				querySpec = new QuerySpec().withKeyConditionExpression("#userid = :v_userid").withNameMap(nameMap).withValueMap(valueMap);
+			}
 
-			DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
-			Table table = dynamoDB.getTable(tableName);
+			log.info("Filter parameters for querying the table are userId={}, timestamp={}", userId, timestamp);
+			
 			items = table.query(querySpec);
-
+			
+			log.info("Items are fetched succesfully from the table items={}", items);
 		} catch (Exception e) {
-			System.err.println("Unable to query happy_events table");
-			System.err.println(e.getMessage());
+			log.error("Exception in getting items {}", e.getMessage());
+			throw e;
+		} finally {
+			log.info("Exiting getItems");
 		}
 		return items;
 	}

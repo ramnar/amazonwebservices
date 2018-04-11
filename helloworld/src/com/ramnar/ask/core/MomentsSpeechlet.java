@@ -1,12 +1,3 @@
-/**
-    Copyright 2014-2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-    Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-
-        http://aws.amazon.com/apache2.0/
-
-    or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
- */
 package com.ramnar.ask.core;
 
 import java.util.Calendar;
@@ -35,8 +26,9 @@ import com.amazonaws.services.dynamodbv2.document.QueryOutcome;
 import com.ramnar.ask.db.MomentsDynamoDB;
 
 /**
- * This sample shows how to create a simple speechlet for handling intent
- * requests and managing session interactions.
+ * speechlet for three good things skill
+ * @author Ramanarayana_M
+ *
  */
 public class MomentsSpeechlet implements SpeechletV2 {
 
@@ -46,11 +38,12 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	private static final String WELCOME_MESSAGE = "Welcome to three good things! Tell one thing that went well for you today by saying something like Today I played awesome cricket";
 	private static final String WELCOME_REPROMPT_MESSAGE = "Tell one thing that went well for you today by saying something like Today I played awesome cricket";
 	private static final String SKILL_TITLE = "Three Good Things";
-	private static final String HELP_MESSAGE = "Three good things is a skill to add one or more good experience you had today and to listen to your past experiences";
+	private static final String HELP_MESSAGE = "Three good things is a skill to add one or more good experiences you had today and to listen to your past experiences";
 	private static final String STOP_MESSAGE = "Good Bye!";
-	private static final String FIRST_MESSAGE = "First one added successfully. Tell the second one. If you dont have any thing to add, say stop";
-	private static final String SECOND_MESSAGE = "Second one added successfully. Tell the third one. If you dont have any thing to add, say stop";
+	private static final String FIRST_MESSAGE = "First one added successfully. Tell the second one. If you dont have any thing, say stop";
+	private static final String SECOND_MESSAGE = "Second one added successfully. Tell the third one. If you dont have any thing, say stop";
 	private static final String THIRD_MESSAGE = "Third one added successfully. Thankyou. Have a nice day";
+	private static final String EXCEPTION_MESSAGE = "Sorry something went wrong. Please try after some time";
 
 	private static final Logger log = LoggerFactory.getLogger(MomentsSpeechlet.class);
 
@@ -58,8 +51,6 @@ public class MomentsSpeechlet implements SpeechletV2 {
 
 	@Override
 	public void onSessionStarted(SpeechletRequestEnvelope<SessionStartedRequest> requestEnvelope) {
-		log.info("onSessionStarted requestId={}, sessionId={}", requestEnvelope.getRequest().getRequestId(), requestEnvelope.getSession().getSessionId());
-		// any initialization logic goes here
 	}
 
 	@Override
@@ -72,10 +63,11 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	public SpeechletResponse onIntent(SpeechletRequestEnvelope<IntentRequest> requestEnvelope) {
 		IntentRequest request = requestEnvelope.getRequest();
 		Session session = requestEnvelope.getSession();
-		log.info("onIntent requestId={}, sessionId={}", request.getRequestId(), session);
 
-		// Get intent from the request object.
 		Intent intent = request.getIntent();
+		log.info("Values for requestId={}, sessionId={}, intentName={}", request.getRequestId(), session, intent.getName());
+
+
 		String intentName = (intent != null) ? intent.getName() : null;
 		switch (intentName) {
 		case "AddMomentIntent":
@@ -98,22 +90,27 @@ public class MomentsSpeechlet implements SpeechletV2 {
 
 	@Override
 	public void onSessionEnded(SpeechletRequestEnvelope<SessionEndedRequest> requestEnvelope) {
-		log.info("onSessionEnded requestId={}, sessionId={}", requestEnvelope.getRequest().getRequestId(), requestEnvelope.getSession().getSessionId());
-		// any cleanup logic goes here
 	}
 
 	private SpeechletResponse processAddMomentIntent(final Intent intent, final Session session) {
+		log.info("Entering processAddMomentIntent intent={}, session={}", intent.getName(), session);
+		
 		MomentsDynamoDB db = MomentsDynamoDB.getInstance();
 		String userId = session.getUser().getUserId();
 		Map<String, Object> attributes = session.getAttributes();
 
 		Map<String, Slot> slots = intent.getSlots();
 		String message = slots.get(GOODTHINGS_SLOT).getValue();
-		db.addItem(userId, message);
-
+		Object counter = attributes.get(COUNTER);
+		
+		log.info("Property values are message={}, counter={}", message, counter);
+		
+		boolean isAdded = db.addItem(userId, message);
+		if (!isAdded) {
+			return getSpeechletResponse(EXCEPTION_MESSAGE, EXCEPTION_MESSAGE, true);
+		}
 		String speechText = "";
 
-		Object counter = attributes.get(COUNTER);
 		boolean rePrompt = false;
 
 		if (counter == null) {
@@ -129,15 +126,12 @@ public class MomentsSpeechlet implements SpeechletV2 {
 			speechText = THIRD_MESSAGE;
 		}
 
+		log.info("Exiting processAddMomentIntent");
 		return getSpeechletResponse(speechText, speechText, rePrompt);
 	}
 
 	private SpeechletResponse processReadMomentsIntent(final Intent intent, final Session session) {
-		MomentsDynamoDB db = MomentsDynamoDB.getInstance();
-		String userId = session.getUser().getUserId();
-
-		ItemCollection<QueryOutcome> items = null;
-
+		log.info("Entering processReadMomentsIntent intent={}, session={}", intent, session);
 		Map<String, Slot> slots = intent.getSlots();
 		String message = slots.get(DURATION_SLOT).getValue();
 
@@ -146,27 +140,28 @@ public class MomentsSpeechlet implements SpeechletV2 {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
+		long timestamp = 0;
 
 		switch (message) {
 		case "all":
-			items = db.getIAlltems(userId);
+			timestamp = -1;
 			break;
 		case "today":
-			items = db.getItems(userId, cal.getTimeInMillis());
+			timestamp = cal.getTimeInMillis();
 			break;
 		case "yesterday":
 			cal.add(Calendar.DATE, -1);
-			items = db.getItems(userId, cal.getTimeInMillis());
+			timestamp = cal.getTimeInMillis();
 			break;
 		case "one week":
 		case "1 week":
 			cal.add(Calendar.DATE, -6);
-			items = db.getItems(userId, cal.getTimeInMillis());
+			timestamp = cal.getTimeInMillis();
 			break;
 		case "one month":
 		case "1 month":
 			cal.add(Calendar.DATE, -29);
-			items = db.getItems(userId, cal.getTimeInMillis());
+			timestamp = cal.getTimeInMillis();
 			break;
 		default:
 			break;
@@ -174,22 +169,27 @@ public class MomentsSpeechlet implements SpeechletV2 {
 
 		String speechText = "";
 		try {
+			MomentsDynamoDB momentsDynamoDB = MomentsDynamoDB.getInstance();
+			String userId = session.getUser().getUserId();
+			log.debug("userId={}, slot message={}, timestamp={}", userId, message, timestamp);
 			Item item = null;
+			ItemCollection<QueryOutcome> items = momentsDynamoDB.getItems(userId, timestamp);
 			if (items != null) {
 				Iterator<Item> iterator = items.iterator();
 				while (iterator.hasNext()) {
 					item = iterator.next();
 					speechText += item.getString("happy_event") + ". ";
-
 				}
 			} else {
-				speechText = "Sorry! No happy moments are present";
+				speechText = "Sorry! No good things are present";
 			}
 
 		} catch (Exception e) {
-			System.err.println("Unable to query happy_events table");
-			System.err.println(e.getMessage());
+			log.error("Exception in getting items {}", e.getMessage());
+			speechText = EXCEPTION_MESSAGE;
 		}
+		log.info("speechText={}", speechText);
+		log.info("Exiting processReadMomentsIntent");
 		return getSpeechletResponse(speechText, speechText, false);
 	}
 
