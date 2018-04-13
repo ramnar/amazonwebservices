@@ -35,13 +35,13 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	private static final String ERROR_MESSAGE = "Sorry this is not supported. Please try something else";
 	private static final String GOODTHINGS_SLOT = "goodthings";
 	private static final String DURATION_SLOT = "duration";
-	private static final String WELCOME_MESSAGE = "Welcome to three good things! Tell one thing that went well for you today by saying something like Today I played awesome cricket";
+	private static final String WELCOME_MESSAGE = "Welcome to Three Good Things! Tell one thing that went well for you today by saying Today I played awesome cricket";
 	private static final String WELCOME_REPROMPT_MESSAGE = "Tell one thing that went well for you today by saying something like Today I played awesome cricket";
 	private static final String SKILL_TITLE = "Three Good Things";
-	private static final String HELP_MESSAGE = "Three good things is a skill to add one or more good experiences you had today and to listen to your past experiences";
+	private static final String HELP_MESSAGE = "Three good things collects good experiences you had today and read all your past experiences. You can say Today I played awesome cricket, or You can say, Stop. So, how can I help?";
 	private static final String STOP_MESSAGE = "Good Bye!";
-	private static final String FIRST_MESSAGE = "First one added successfully. Tell the second one. If you dont have any thing, say stop";
-	private static final String SECOND_MESSAGE = "Second one added successfully. Tell the third one. If you dont have any thing, say stop";
+	private static final String FIRST_MESSAGE = "First one added successfully. Tell the second one. If you dont have any thing, say Stop";
+	private static final String SECOND_MESSAGE = "Second one added successfully. Tell the third one. If you dont have any thing, say Stop";
 	private static final String THIRD_MESSAGE = "Third one added successfully. Thankyou. Have a nice day";
 	private static final String EXCEPTION_MESSAGE = "Sorry something went wrong. Please try after some time";
 
@@ -56,6 +56,7 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	@Override
 	public SpeechletResponse onLaunch(SpeechletRequestEnvelope<LaunchRequest> requestEnvelope) {
 		log.info("onLaunch requestId={}, sessionId={}", requestEnvelope.getRequest().getRequestId(), requestEnvelope.getSession().getSessionId());
+		System.out.println("Hello");
 		return getWelcomeResponse();
 	}
 

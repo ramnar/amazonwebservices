@@ -22,3 +22,11 @@ Alexa: Good thing added successfully.Tell the next one. If you dont have any thi
 User: alexa ask three good things to read/play/tell for (today/yesterday/one week/one month)
 
 Alexa: I woke up early. watched good movie. I met a college friend. I went to restaurant. I met my grand parents
+
+
+
+## References
+
+https://romannurik.github.io/AndroidAssetStudio/index.html
+http://time.com/49947/happy-thoughts-here-are-the-things-proven-to-make-you-happier/
+https://sites.google.com/site/psychospiritualtools/Home/psychological-practices/three-good-things
