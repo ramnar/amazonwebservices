@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -20,14 +20,13 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
-import com.ramnar.ask.core.MomentsSpeechlet;
 
 /**
  * Class to do crud operations on a table in amazon dynamo db.
  */
 public class MomentsDynamoDB {
 
-	private static final Logger log = LoggerFactory.getLogger(MomentsSpeechlet.class);
+	static final Logger log = LogManager.getLogger(MomentsDynamoDB.class);
 
 	private static AmazonDynamoDB amazonDynamoDB;
 	private static final String tableName = "happy-events-table";

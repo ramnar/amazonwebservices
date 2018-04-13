@@ -4,8 +4,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.amazon.speech.json.SpeechletRequestEnvelope;
 import com.amazon.speech.slu.Intent;
@@ -45,7 +45,7 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	private static final String THIRD_MESSAGE = "Third one added successfully. Thankyou. Have a nice day";
 	private static final String EXCEPTION_MESSAGE = "Sorry something went wrong. Please try after some time";
 
-	private static final Logger log = LoggerFactory.getLogger(MomentsSpeechlet.class);
+	static final Logger log = LogManager.getLogger(MomentsSpeechlet.class);
 
 	private static final String COUNTER = "COUNTER";
 
@@ -56,7 +56,6 @@ public class MomentsSpeechlet implements SpeechletV2 {
 	@Override
 	public SpeechletResponse onLaunch(SpeechletRequestEnvelope<LaunchRequest> requestEnvelope) {
 		log.info("onLaunch requestId={}, sessionId={}", requestEnvelope.getRequest().getRequestId(), requestEnvelope.getSession().getSessionId());
-		System.out.println("Hello");
 		return getWelcomeResponse();
 	}
 
