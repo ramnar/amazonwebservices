@@ -27,6 +27,6 @@
         "slots": []
       }
     ],
-    "invocationName": "hello world"
+    "invocationName": "greeter"
   }
 }
