@@ -25,7 +25,6 @@ import com.amazon.speech.speechlet.SpeechletV2;
 import com.amazon.speech.ui.OutputSpeech;
 import com.amazon.speech.ui.PlainTextOutputSpeech;
 import com.amazon.speech.ui.Reprompt;
-import com.amazon.speech.ui.SimpleCard;
 
 /**
  * This sample shows how to create a simple speechlet for handling speechlet requests.
@@ -34,7 +33,7 @@ public class HelloWorldSpeechlet implements SpeechletV2 {
     private static final Logger log = LoggerFactory.getLogger(HelloWorldSpeechlet.class);
 
     private String[] jokes = {"Rajnikanth can answer a missed call",
-    		"If smartphone of Rajnikanth hangs, it means it is time for Android\\'s next release",
+    		"If smartphone of Rajnikanth hangs, it means it is time for Androids next release",
     		"Even ghajini can remember rajini",
     		"Gabbar singh forgets his dialogues after seeing rajnikanth",
     		"Police department is bored of zero crimes in the city where rajnikanth lives",
